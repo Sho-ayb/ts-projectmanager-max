@@ -24,7 +24,7 @@ module.exports = {
   },
   plugins: [
     new GoogleFontsPlugin({
-      fonts: [{ family: 'Manrope', variants: ['400', '600', '700', '800'] }],
+      fonts: [{ family: 'Poppins', variants: ['300', '400', '500', '600'] }],
 
       // Add more fonts if needed
       local: false, // Use Google fonts CDN instead of downloading

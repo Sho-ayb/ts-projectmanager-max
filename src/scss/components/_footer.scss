@@ -1,0 +1,14 @@
+@use "../base/variables" as variables;
+
+body {
+  .footer {
+    font-size: variables.$font-size-sm;
+    font-weight: 300;
+    text-align: center;
+    padding: variables.$spacing-xl;
+
+    a > i {
+      font-size: variables.$font-size-lg;
+    }
+  }
+}

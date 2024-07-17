@@ -1,11 +1,89 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Title Goes Here</title>
+
+    <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+
+    <title>Project Manager Demo In Typescript</title>
   </head>
   <body>
-    <h1>Webpack Setup - Typescript</h1>
+    <header class="header">
+      <div class="header__description">
+        <h1 class="header__logo">
+          Understanding Typescript - Max Schwarzmuller
+        </h1>
+        <h2>Demo Project Manager Application</h2>
+        <p class="header__para">
+          This is part of a complete course by
+          <strong>Max Schwarzmuller</strong> titled
+          <strong> Understanding Typescipt</strong>
+          taken on the O'Reilly platform:
+          <a
+            href="https://learning.oreilly.com/course/understanding-typescript/9781789951905/"
+            target="_blank"
+            >Understanding Typescript</a
+          >, this is Chapter 9: Practice to build a project manager application
+          in Typescript.
+        </p>
+        <p class="header__para">
+          The Github repository for this demo project can be found here:
+          <a
+            href="https://github.com/Sho-ayb/ts-projectmanager-max"
+            target="_blank"
+            >Github Repo</a
+          >
+        </p>
+      </div>
+    </header>
+    <main class="main">
+      <!-- The HTML template tag is hidden by default but can be used in javascript  -->
+      <template id="project__input">
+        <form>
+          <div class="form__control">
+            <label for="title">Title</label>
+            <input type="text" id="title" />
+          </div>
+          <div class="form__control">
+            <label for="description">Description</label>
+            <textarea id="description" rows="3"></textarea>
+          </div>
+          <div class="form__control">
+            <label for="people">People</label>
+            <input type="number" id="people" step="1" min="0" max="10" />
+          </div>
+          <button type="submit">ADD PROJECT</button>
+        </form>
+      </template>
+      <template id="single__project">
+        <li></li>
+      </template>
+
+      <template id="project__list">
+        <section class="projects">
+          <header>
+            <h2></h2>
+          </header>
+          <ul></ul>
+        </section>
+      </template>
+      <div id="app"></div>
+    </main>
+    <footer class="footer">
+      This project was built with ❤ by Sho'ayb
+      <a href="https://github.com/Sho-ayb" target="_blank" class="github-icon"
+        ><i class="bx bxl-github"></i
+      ></a>
+      <a
+        href="https://www.linkedin.com/in/shoaybchoudhry"
+        target="_blank"
+        class="linkedin-icon"
+        ><i class="bx bxl-linkedin-square"></i
+      ></a>
+    </footer>
   </body>
 </html>

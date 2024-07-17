@@ -1,0 +1,5 @@
+@use "../base/variables" as variables;
+
+.space-around-sm {
+  padding: variables.$spacing-lg;
+}

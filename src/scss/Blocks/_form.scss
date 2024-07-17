@@ -1,0 +1,7 @@
+@use "../base/variables" as variables;
+
+#user-input {
+  margin: 0 variables.$spacing-md;
+  padding: variables.$spacing-md;
+  background-color: variables.$color-background-dark-2;
+}

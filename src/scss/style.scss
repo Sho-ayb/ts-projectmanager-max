@@ -2,3 +2,17 @@
 
 @use "base/reset";
 @use "base/variables" as variables;
+
+/* Blocks */
+
+@use "../scss/Blocks/form";
+
+/* Components */
+
+@use "../scss/components/header";
+@use "../scss/components/main";
+@use "../scss/components/footer";
+
+/* Utilities */
+
+@use "../scss/Utilities/spacing";

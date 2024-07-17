@@ -1,0 +1,15 @@
+@use "../base/variables" as variables;
+
+body {
+  display: flex;
+  flex-direction: column;
+
+  .main {
+    max-width: 100%;
+    min-height: 100%;
+    padding: variables.$spacing-lg;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+}
