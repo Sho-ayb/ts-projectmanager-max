@@ -1,7 +1,101 @@
 @use "../base/variables" as variables;
 
+/* to use the latest color.adjust() function instead of darken() */
+@use "sass:color";
+
 #user-input {
+  width: 100%;
   margin: 0 variables.$spacing-md;
   padding: variables.$spacing-md;
   background-color: variables.$color-background-dark-2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  /*   form submit button */
+  button[type="submit"] {
+    font-size: variables.$font-size-md;
+    margin-top: variables.$spacing-md;
+    padding: variables.$spacing-sm;
+    background-color: variables.$color-secondary;
+    color: variables.$color-text-light-2;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: color.adjust(
+        variables.$color-secondary,
+        $lightness: -10%
+      );
+    }
+
+    @media (width >= 51.875rem) {
+      width: auto;
+      float: right;
+      clear: both;
+      margin-left: auto;
+      margin-right: variables.$spacing-sm;
+    }
+  }
+
+  @media (width >= 37.5rem) {
+    max-width: 85%;
+
+    button[type="submit"] {
+      width: auto;
+      padding: variables.$spacing-sm variables.$spacing-md;
+    }
+  }
+
+  @media (width >= 65.625rem) {
+    max-width: 65%;
+  }
+}
+
+.form__control {
+  width: 100%;
+  margin-bottom: variables.$spacing-sm;
+
+  label {
+    display: block;
+    margin-bottom: variables.$spacing-xs;
+    font-size: variables.$font-size-sm;
+    color: variables.$color-text-light-1;
+  }
+
+  input,
+  textarea {
+    width: 100%;
+    padding: variables.$spacing-xs;
+    font-size: variables.$font-size-md;
+    border: 1px solid variables.$color-background-dark-1;
+    border-radius: 4px;
+  }
+
+  textarea {
+    resize: vertical;
+  }
+
+  @media (width >= 37.5rem) {
+    .form__control {
+      input,
+      textarea {
+        font-size: variables.$font-size-xl;
+      }
+    }
+  }
+
+  @media (width >= 65.625rem) {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    label {
+      width: fit-content;
+      font-size: variables.$font-size-xl;
+      padding-right: variables.$spacing-md;
+    }
+  }
 }

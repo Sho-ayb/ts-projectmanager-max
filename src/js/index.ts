@@ -24,7 +24,7 @@ class ProjectInput {
     console.log(this.element);
 
     this.element.id = 'user-input';
-    this.hostElement.className = 'space-around-sm';
+    this.hostElement.className = '[ space-around-sm flex-center ]';
 
     this.attach();
   }

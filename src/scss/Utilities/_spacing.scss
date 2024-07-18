@@ -3,3 +3,9 @@
 .space-around-sm {
   padding: variables.$spacing-lg;
 }
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
