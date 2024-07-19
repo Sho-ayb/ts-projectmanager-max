@@ -37,6 +37,52 @@ function Autobind(
   return adjDescriptor;
 }
 
+// a new interface object to validate user inputs
+
+interface Validatable {
+  value: string | number;
+  required: boolean;
+  minLength?: number;
+  maxLength?: number;
+  min?: number;
+  max?: number;
+}
+
+// a function to handle valid inputs
+
+function validInput(validInput: Validatable): boolean {
+  // keep a variable here to determine to return truthy || falsy
+  let isValid = true;
+
+  // checking if anything is entered as an input
+  if (validInput.required) {
+    // this checks if isValid is truthy and then converts the value of this input to a string, because a validInput could also be a number. We get rid of empty spaces using trim() and then check its length and if it is not equal to 0 then the && operator will return a truthy.
+    isValid = isValid && validInput.value.toString().trim().length !== 0;
+  }
+
+  // our inputs have also a minLength but because all are validatables are optional, we need to check if the prop is a null or undefined and != null returns both and we also check if the validInputs value is a string.
+  if (validInput.minLength != null && typeof validInput.value === 'string') {
+    isValid =
+      isValid && validInput.value.toString().length > validInput.minLength;
+  }
+
+  if (validInput.maxLength != null && typeof validInput.value === 'string') {
+    isValid =
+      isValid && validInput.value.toString().length <= validInput.maxLength;
+  }
+
+  if (validInput.min != null && typeof validInput.value === 'number') {
+    isValid = isValid && validInput.value >= validInput.min;
+  }
+
+  if (validInput.max != null && typeof validInput.value === 'number') {
+    isValid = isValid && validInput.value <= validInput.max;
+  }
+
+  // in the end we ruturn a boolean
+  return isValid;
+}
+
 // ProjectInput class
 class ProjectInput {
   templateElement: HTMLTemplateElement;
@@ -64,7 +110,8 @@ class ProjectInput {
     this.element.id = 'user-input';
     this.hostElement.className = '[ space-around-sm flex-center ]';
 
-    // we need to extract the inputs from the form fields
+    // we need to extract the inputs from the form fields and
+    // assign it to the class properties above
 
     this.titleInputEl = this.element.querySelector(
       '#title'
@@ -84,15 +131,81 @@ class ProjectInput {
     this.hostElement.insertAdjacentElement('afterbegin', this.element);
   }
 
+  private clearInputs() {
+    this.titleInputEl.value =
+      this.descriptionEl.value =
+      this.peopleEl.value =
+        '';
+  }
+
   @Autobind
   private submitHandler(event: Event) {
     event.preventDefault();
-    console.log(this.titleInputEl.value);
+    // gather the user inputs
+    const userInput = this.gatherUserInputs();
+    // what is actually returned is a tuple but a tuple is just an array, so we can check if what is returned is indeed an array
+    if (Array.isArray(userInput)) {
+      // we can destructure
+      const [title, desc, people] = userInput;
+
+      console.log(title, desc, people);
+    }
+
+    // once submitted clear all the inputs
+    this.clearInputs();
   }
 
   private configure() {
     this.element.addEventListener('submit', this.submitHandler);
   }
+
+  private gatherUserInputs(): [string, string, number] | void {
+    // we can get the form input values via the elements value property
+    const titleInput = this.titleInputEl.value;
+    const descInput = this.descriptionEl.value;
+    const peopleInput = this.peopleEl.value;
+
+    // lets create objects here that conforms to the Validatable interface
+
+    const titleValidatable: Validatable = {
+      value: titleInput,
+      required: true,
+      minLength: 5,
+    };
+
+    const descriptionValidatable: Validatable = {
+      value: descInput,
+      required: true,
+      minLength: 5,
+    };
+
+    const peopleValidatable: Validatable = {
+      value: +peopleInput,
+      required: true,
+      min: 1,
+      max: 5,
+    };
+
+    // we can check if the inputs a valid - inverting truthies, so if any are falsy, it will execute the first if statement
+
+    if (
+      !validInput(titleValidatable) &&
+      !validInput(descriptionValidatable) &&
+      !validInput(peopleValidatable)
+    ) {
+      throw new Error('Please enter a valid input');
+    } else {
+      return [titleInput, descInput, +peopleInput];
+    }
+  }
 }
 
-const prjInput = new ProjectInput();
+const init = () => {
+  try {
+    const prjInput = new ProjectInput();
+  } catch (error) {
+    console.log('Error: ' + error.message);
+  }
+};
+
+init();
