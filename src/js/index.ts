@@ -108,7 +108,7 @@ class ProjectInput {
     console.log(this.element);
     // we can add id and class names
     this.element.id = 'user-input';
-    this.hostElement.className = '[ space-around-sm flex-center ]';
+    this.hostElement.className = '[ space-around-sm flex-center flex-column ]';
 
     // we need to extract the inputs from the form fields and
     // assign it to the class properties above
@@ -200,9 +200,49 @@ class ProjectInput {
   }
 }
 
+class ProjectList {
+  templateElement: HTMLTemplateElement;
+  hostElement: HTMLDivElement;
+  element: HTMLElement;
+
+  constructor(private type: 'active' | 'finished') {
+    // getting the elements
+    this.templateElement = document.getElementById(
+      'project__list'
+    )! as HTMLTemplateElement;
+    this.hostElement = document.getElementById('app')! as HTMLDivElement;
+
+    // this returns a document fragment
+    const importNode = document.importNode(this.templateElement.content, true);
+
+    // we now have the form element itself
+    this.element = importNode.firstElementChild as HTMLFormElement;
+
+    console.log(this.element);
+
+    // invoke instance methods
+    this.attach();
+    this.renderContent();
+  }
+
+  private attach() {
+    this.hostElement.insertAdjacentElement('beforeend', this.element);
+  }
+
+  private renderContent() {
+    // to apply specific styles
+    const listId = `project-list-${this.type}`;
+    this.element.querySelector('header').id = listId;
+    this.element.querySelector('h2').textContent =
+      `${this.type.toUpperCase()} PROJECTS`;
+  }
+}
+
 const init = () => {
   try {
     const prjInput = new ProjectInput();
+    const prjActiveList = new ProjectList('active');
+    const prjFinishedList = new ProjectList('finished');
   } catch (error) {
     console.log('Error: ' + error.message);
   }

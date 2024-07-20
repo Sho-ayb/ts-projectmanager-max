@@ -11,5 +11,34 @@ body {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
+
+    .section__projects {
+      width: 100%;
+      min-height: 25vh;
+      margin-top: variables.$spacing-lg;
+      border: 1.25px solid variables.$color-background-dark-1;
+
+      > header {
+        height: 4rem;
+        margin-top: 2em;
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        > h2 {
+          font-size: variables.$font-size-xl;
+          color: variables.$color-text-light-2;
+        }
+      }
+
+      #project-list-active {
+        background-color: variables.$background-color-active;
+      }
+
+      #project-list-finished {
+        background-color: variables.$background-color-finished;
+      }
+    }
   }
 }
