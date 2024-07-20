@@ -1,4 +1,5 @@
 @use "../base/variables" as variables;
+@use "sass:color";
 
 body {
   .header {
@@ -13,6 +14,18 @@ body {
 
       > * {
         margin-bottom: 1em;
+
+        a {
+          text-decoration: none;
+          color: variables.$color-anchors-whitesmoke;
+        }
+
+        a:hover {
+          color: color.adjust(
+            variables.$color-anchors-whitesmoke,
+            $lightness: -40%
+          );
+        }
       }
     }
 
