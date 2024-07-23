@@ -3,7 +3,7 @@
 /* to use the latest color.adjust() function instead of darken() */
 @use "sass:color";
 
-#user-input {
+#user__input {
   width: 100%;
   margin: 0 variables.$spacing-md;
   padding: variables.$spacing-md;
