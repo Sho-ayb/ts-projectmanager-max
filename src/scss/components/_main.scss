@@ -12,7 +12,7 @@ body {
     flex-direction: column;
     flex-grow: 1;
 
-    .section__projects {
+    #section__projects {
       width: 100%;
       min-height: 25vh;
       margin-top: variables.$spacing-lg;
@@ -32,11 +32,11 @@ body {
         }
       }
 
-      #project-list-active {
+      .project__header--active {
         background-color: variables.$background-color-active;
       }
 
-      #project-list-finished {
+      .project__header--finished {
         background-color: variables.$background-color-finished;
       }
     }
