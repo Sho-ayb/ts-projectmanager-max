@@ -37,17 +37,6 @@ function Autobind(
   return adjDescriptor;
 }
 
-// a new interface object to validate user inputs
-
-interface Validatable {
-  value: string | number;
-  required: boolean;
-  minLength?: number;
-  maxLength?: number;
-  min?: number;
-  max?: number;
-}
-
 // a function to handle valid inputs
 
 function validInput(validInput: Validatable): boolean {
@@ -83,14 +72,45 @@ function validInput(validInput: Validatable): boolean {
   return isValid;
 }
 
+// a new interface object to validate user inputs
+
+interface Validatable {
+  value: string | number;
+  required: boolean;
+  minLength?: number;
+  maxLength?: number;
+  min?: number;
+  max?: number;
+}
+
+enum ProjectStatus {
+  Active,
+  Finished,
+}
+
+// Creating a class to create Projects
+class Project {
+  // using the shorthand way of defining class properties
+  constructor(
+    public id: string,
+    public title: string,
+    public description: string,
+    public numOfPeople: number,
+    public status: ProjectStatus
+  ) {}
+}
+
+// Creating a type for listeners array and we know it returns nothing
+type Listener = (items: Project[]) => void;
+
 // Creating a class to track the applications state
 
 class ProjectState {
   // a listener array holding listener functions
-  private listeners: any[] = [];
+  private listeners: Listener[] = [];
 
   // new projects will be stored here in one place
-  private projects: any[] = [];
+  private projects: Project[] = [];
   // since method is static; this prop has to be static too
   private static instance: ProjectState;
 
@@ -106,7 +126,7 @@ class ProjectState {
     return this.instance;
   }
 
-  addListener(listenerFn: Function) {
+  addListener(listenerFn: Listener) {
     this.listeners.push(listenerFn);
     console.log(listenerFn);
     console.log(this.listeners);
@@ -114,13 +134,17 @@ class ProjectState {
 
   // public instance method
   addProject(title: string, description: string, numOfPeople: number): void {
+    // create an id
+    const id = Math.random().toString();
+
     // creating an object
-    const newProject = {
-      id: Math.random().toString(),
-      title: title,
-      description: description,
-      people: numOfPeople,
-    };
+    const newProject = new Project(
+      id,
+      title,
+      description,
+      numOfPeople,
+      ProjectStatus.Active
+    );
 
     // push this object to the array
     this.projects.push(newProject);
@@ -135,33 +159,69 @@ class ProjectState {
 // Creating a global instance
 const projectState = ProjectState.getInstance();
 
-// ProjectInput class
-class ProjectInput {
-  templateElement: HTMLTemplateElement;
-  hostElement: HTMLDivElement;
-  element: HTMLElement;
-  titleInputEl: HTMLInputElement;
-  descriptionEl: HTMLInputElement;
-  peopleEl: HTMLInputElement;
+// Creating an abstract class here that class's with these generaic types will inherit from
 
-  constructor() {
+abstract class Component<T extends HTMLElement, U extends HTMLElement> {
+  templateElement: HTMLTemplateElement;
+  hostElement: T;
+  element: U;
+
+  constructor(
+    templateId: string,
+    hostElementId: string,
+    insertAtStart: boolean,
+    newElementId?: string
+  ) {
     // getting the elements
     this.templateElement = document.getElementById(
-      'project__input'
+      templateId
     )! as HTMLTemplateElement;
-    this.hostElement = document.getElementById('app')! as HTMLDivElement;
+    this.hostElement = document.getElementById(hostElementId)! as T;
 
     // this returns a document fragment
     const importNode = document.importNode(this.templateElement.content, true);
 
     // we now have the form element itself
-    this.element = importNode.firstElementChild as HTMLFormElement;
+    this.element = importNode.firstElementChild as U;
 
-    console.log(this.element);
     // we can add id and class names
-    this.element.id = 'user__input';
+    this.element.id = newElementId;
+
+    // will force all other inherited class's to contain these methods
+    this.attach(insertAtStart);
+  }
+
+  // Any method with abstract need to be invoked within the constructor and declared as a method in the inheriting class.
+  abstract configure(): void;
+  abstract renderContent(): void;
+
+  // All inheriting class's get this method
+  private attach(insertAtBeginning: Boolean) {
+    this.hostElement.insertAdjacentElement(
+      insertAtBeginning ? 'afterbegin' : 'beforeend',
+      this.element
+    );
+  }
+}
+
+// ProjectInput class
+class ProjectInput extends Component<HTMLDivElement, HTMLFormElement> {
+  titleInputEl: HTMLInputElement;
+  descriptionEl: HTMLInputElement;
+  peopleEl: HTMLInputElement;
+
+  constructor() {
+    // super ensures that this class gets the constructor of its parent Component
+    super('project__input', 'app', true, 'user__input');
+
     this.hostElement.className = '[ space-around-sm flex-center flex-column ]';
 
+    // setup event listener
+    this.configure();
+  }
+
+  // All public class's should be before any private class's.
+  public configure() {
     // we need to extract the inputs from the form fields and
     // assign it to the class properties above
 
@@ -173,15 +233,12 @@ class ProjectInput {
     ) as HTMLInputElement;
     this.peopleEl = this.element.querySelector('#people') as HTMLInputElement;
 
-    // invoking the class method to insert the element in to div element with the class name of app
-    this.attach();
-    // setup event listener
-    this.configure();
+    this.element.addEventListener('submit', this.submitHandler);
   }
 
-  private attach() {
-    this.hostElement.insertAdjacentElement('afterbegin', this.element);
-  }
+  // we should call renderContent here to satisfy the base class
+  // even though we don't need it here in this class.
+  renderContent(): void {}
 
   private clearInputs() {
     this.titleInputEl.value =
@@ -208,10 +265,6 @@ class ProjectInput {
 
     // once submitted clear all the inputs
     this.clearInputs();
-  }
-
-  private configure() {
-    this.element.addEventListener('submit', this.submitHandler);
   }
 
   private gatherUserInputs(): [string, string, number] | void {
@@ -255,49 +308,42 @@ class ProjectInput {
   }
 }
 
-class ProjectList {
-  templateElement: HTMLTemplateElement;
-  hostElement: HTMLDivElement;
-  element: HTMLElement;
-  assignedProjects: any[];
+class ProjectList extends Component<HTMLElement, HTMLUListElement> {
+  assignedProjects: Project[];
 
   constructor(private type: 'active' | 'finished') {
-    // getting the elements
-    this.templateElement = document.getElementById(
-      'project__list'
-    )! as HTMLTemplateElement;
-    this.hostElement = document.getElementById('app')! as HTMLDivElement;
+    super('project__list', 'app', false, 'section__projects');
     this.assignedProjects = [];
-    console.log(this.assignedProjects);
-    // this returns a document fragment
-    const importNode = document.importNode(this.templateElement.content, true);
-
-    // we now have the form element itself
-    this.element = importNode.firstElementChild as HTMLFormElement;
-
-    console.log(this.element);
 
     // so now before the instance methods are executed, we want to invoke the addListener method and return a function that reassigns the projects array to an array prop here
 
-    projectState.addListener((projects: any[]) => {
-      this.assignedProjects = projects;
+    projectState.addListener((projects: Project[]) => {
+      // filtering the active and finished projects
+      const resolvedProjects = projects.filter((project) => {
+        if (this.type === 'active') {
+          return project.status === ProjectStatus.Active;
+        }
+
+        return project.status === ProjectStatus.Finished;
+      });
+
+      this.assignedProjects = resolvedProjects;
       console.log(this.assignedProjects);
       this.renderProject();
     });
 
     // invoke instance methods
-    this.attach();
+    this.configure();
     this.renderContent();
   }
 
-  private attach() {
-    this.hostElement.insertAdjacentElement('beforeend', this.element);
-  }
+  // to satisfy the base class
+  public configure() {}
 
-  private renderContent() {
+  public renderContent() {
     // to apply specific styles
     const headerId = `project__header--${this.type}`;
-    const listId = `project__list--${this.type}`;
+    const listId = `project__list project__list--${this.type}`;
     this.element.querySelector('header').className = headerId;
     this.element.querySelector('ul').className = listId;
     this.element.querySelector('h2').textContent =
@@ -305,9 +351,14 @@ class ProjectList {
   }
 
   private renderProject() {
+    // to fix duplication: everytime this method is executed
+    // we set the innerHTML of the list element to empty string
+
     const listEl = document.querySelector(
       `.project__list--${this.type}`
     )! as HTMLUListElement;
+
+    listEl.textContent = '';
 
     // loop through the assignedProjects
 
