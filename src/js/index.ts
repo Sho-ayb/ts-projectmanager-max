@@ -367,6 +367,7 @@ class ProjectList extends Component<HTMLElement, HTMLUListElement> {
       const listItem = document.createElement('li');
 
       listItem.textContent = `${projects.title}`;
+      listItem.className = `project__item--${this.type}`;
 
       listEl.appendChild(listItem);
     }
