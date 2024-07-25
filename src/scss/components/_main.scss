@@ -32,6 +32,23 @@ body {
         }
       }
 
+      .project__list > li {
+        font-size: variables.$font-size-xs;
+        font-weight: 500;
+        padding: variables.$spacing-xl;
+        margin: variables.$spacing-md variables.$spacing-lg;
+        border-radius: 6px;
+        box-shadow: 0 2px 8px rgba($color: #000, $alpha: 100%);
+      }
+
+      .project__item--active {
+        background-color: variables.$background-color-li-active;
+      }
+
+      .project__item--finished {
+        background-color: variables.$background-color-li-finished;
+      }
+
       .project__header--active {
         background-color: variables.$background-color-active;
       }
