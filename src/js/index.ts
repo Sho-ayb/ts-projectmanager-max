@@ -101,20 +101,32 @@ class Project {
 }
 
 // Creating a type for listeners array and we know it returns nothing
-type Listener = (items: Project[]) => void;
+type Listener<T> = (items: T[]) => void;
+
+// Creating a state class for ProjectState to inherit from
+
+class State<T> {
+  // a listener array holding listener functions
+  protected listeners: Listener<T>[] = [];
+
+  addListener(listenerFn: Listener<T>) {
+    this.listeners.push(listenerFn);
+  }
+}
 
 // Creating a class to track the applications state
 
-class ProjectState {
-  // a listener array holding listener functions
-  private listeners: Listener[] = [];
-
+class ProjectState extends State<Project> {
   // new projects will be stored here in one place
   private projects: Project[] = [];
   // since method is static; this prop has to be static too
   private static instance: ProjectState;
 
-  private constructor() {}
+  private constructor() {
+    // must contain a super now because this is a class
+    // inheriting from State
+    super();
+  }
 
   // singleton static method
   static getInstance() {
@@ -124,12 +136,6 @@ class ProjectState {
 
     this.instance = new ProjectState();
     return this.instance;
-  }
-
-  addListener(listenerFn: Listener) {
-    this.listeners.push(listenerFn);
-    console.log(listenerFn);
-    console.log(this.listeners);
   }
 
   // public instance method
