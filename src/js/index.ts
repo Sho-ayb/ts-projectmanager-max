@@ -176,7 +176,7 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
     templateId: string,
     hostElementId: string,
     insertAtStart: boolean,
-    newElementId?: string
+    newElementId: string
   ) {
     // getting the elements
     this.templateElement = document.getElementById(
@@ -314,6 +314,44 @@ class ProjectInput extends Component<HTMLDivElement, HTMLFormElement> {
   }
 }
 
+// Creating a class specifically for rendering the Project  List Items in the unordered list
+
+class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> {
+  // creating a class prop here that is of type Project
+  // so that we can use it in renderContent method
+  private project: Project;
+  private type: 'active' | 'finished';
+
+  // Creating a getter here to return a better output to render number of people correctly
+  get persons() {
+    if (this.project.numOfPeople === 1) {
+      return '1 person';
+    } else {
+      return `${this.project.numOfPeople} persons`;
+    }
+  }
+
+  constructor(hostElId: string, project: Project, type: 'active' | 'finished') {
+    super('single__project', hostElId, false, project.id);
+    this.project = project;
+    this.type = type;
+
+    this.configure();
+    this.renderContent();
+  }
+
+  public configure(): void {
+    this.element.classList.add('project__list__item');
+    this.element.classList.add(`project__list__item--${this.type}`);
+  }
+
+  public renderContent(): void {
+    this.element.querySelector('h2')!.textContent = this.project.title;
+    this.element.querySelector('h3')!.textContent = this.persons + ' assigned';
+    this.element.querySelector('p')!.textContent = this.project.description;
+  }
+}
+
 class ProjectList extends Component<HTMLElement, HTMLUListElement> {
   assignedProjects: Project[];
 
@@ -348,10 +386,12 @@ class ProjectList extends Component<HTMLElement, HTMLUListElement> {
 
   public renderContent() {
     // to apply specific styles
-    const headerId = `project__header--${this.type}`;
-    const listId = `project__list project__list--${this.type}`;
-    this.element.querySelector('header').className = headerId;
-    this.element.querySelector('ul').className = listId;
+    const headerClass = `project__header--${this.type}`;
+    const listClasses = `project__list project__list--${this.type}`;
+    const listId = `${this.type}__project__list`;
+    this.element.querySelector('header').className = headerClass;
+    this.element.querySelector('ul').id = listId;
+    this.element.querySelector('ul').className = listClasses;
     this.element.querySelector('h2').textContent =
       `${this.type.toUpperCase()} PROJECTS`;
   }
@@ -364,18 +404,26 @@ class ProjectList extends Component<HTMLElement, HTMLUListElement> {
       `.project__list--${this.type}`
     )! as HTMLUListElement;
 
+    // type gaurd - early return if there is no list element
+    if (!listEl) return;
+
+    // this line gets rid of duplication
     listEl.textContent = '';
 
     // loop through the assignedProjects
 
-    for (const projects of this.assignedProjects) {
-      // create a list item
-      const listItem = document.createElement('li');
+    for (const project of this.assignedProjects) {
+      // now that we have created a separate class for
+      // creating a list item element and rendering it to the host element, we can call it here and pass in the constructors args
 
-      listItem.textContent = `${projects.title}`;
-      listItem.className = `project__item--${this.type}`;
+      // we need the host element which will be the unordered list element within section__projects, which is the element on project__list template.
 
-      listEl.appendChild(listItem);
+      const hostElementId = this.element.querySelector('ul')!.id;
+      console.log(hostElementId);
+
+      console.log(project);
+
+      new ProjectItem(hostElementId, project, this.type);
     }
   }
 }
