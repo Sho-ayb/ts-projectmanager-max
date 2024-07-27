@@ -32,21 +32,40 @@ body {
         }
       }
 
-      .project__list > li {
-        font-size: variables.$font-size-xs;
-        font-weight: 500;
-        padding: variables.$spacing-xl;
-        margin: variables.$spacing-md variables.$spacing-lg;
-        border-radius: 6px;
-        box-shadow: 0 2px 8px rgba($color: #000, $alpha: 100%);
-      }
+      .project__list {
+        &__item {
+          font-size: variables.$font-size-xs;
+          font-weight: 500;
+          padding: variables.$spacing-xl;
+          margin: variables.$spacing-md variables.$spacing-lg;
+          border-radius: 6px;
+          box-shadow: 0 2px 8px rgba($color: #000, $alpha: 100%);
 
-      .project__item--active {
-        background-color: variables.$background-color-li-active;
-      }
+          h2 {
+            font-size: variables.$font-size-xl;
+            color: variables.$color-text-li-active;
+            padding: variables.$spacing-xs 0;
+          }
 
-      .project__item--finished {
-        background-color: variables.$background-color-li-finished;
+          h3 {
+            font-size: variables.$font-size-lg;
+            padding: variables.$spacing-xs 0;
+          }
+
+          p {
+            font-size: variables.$font-size-md;
+            font-weight: 300;
+            padding: variables.$spacing-xs 0;
+          }
+
+          &--active {
+            background-color: variables.$background-color-li-active;
+          }
+
+          &--finished {
+            background-color: variables.$background-color-li-finished;
+          }
+        }
       }
 
       .project__header--active {
