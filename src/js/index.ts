@@ -14,8 +14,6 @@ function Autobind(
 
   const originalMethod = descriptor.value;
 
-  console.log(originalMethod);
-
   // create a new adjusted property descriptor object here
 
   const adjDescriptor: PropertyDescriptor = {
@@ -81,6 +79,21 @@ interface Validatable {
   maxLength?: number;
   min?: number;
   max?: number;
+}
+
+// a new interface object that includes methods that certain class's need to implement
+
+interface Draggable {
+  dragStartHandler(event: DragEvent): void;
+  dragEndHandler(event: DragEvent): void;
+}
+
+// the above is an interface for a class that implements a drag, the following interface is for the class that implements listening events methods on the target element
+
+interface DragTarget {
+  dragOverHandler(event: DragEvent): void;
+  dropHandler(event: DragEvent): void;
+  dragLeaveHandler(event: DragEvent): void;
 }
 
 enum ProjectStatus {
@@ -154,6 +167,19 @@ class ProjectState extends State<Project> {
 
     // push this object to the array
     this.projects.push(newProject);
+    this.updateListeners();
+  }
+
+  moveProject(projectId: string, newStatus: ProjectStatus) {
+    const project = this.projects.find((prj) => prj.id === projectId);
+
+    if (project && project.status !== newStatus) {
+      project.status = newStatus;
+      this.updateListeners();
+    }
+  }
+
+  updateListeners() {
     // when a project is added, we need to loop through the listeners array and invoke the listenerFn and pass in a shallow copy of the projects array
     for (const listenerFn of this.listeners) {
       // remember that listenerFn is actual function as per addListener argument.
@@ -316,7 +342,10 @@ class ProjectInput extends Component<HTMLDivElement, HTMLFormElement> {
 
 // Creating a class specifically for rendering the Project  List Items in the unordered list
 
-class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> {
+class ProjectItem
+  extends Component<HTMLUListElement, HTMLLIElement>
+  implements Draggable
+{
   // creating a class prop here that is of type Project
   // so that we can use it in renderContent method
   private project: Project;
@@ -340,9 +369,28 @@ class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> {
     this.renderContent();
   }
 
+  // need to implement these as per the interface Draggable
+  @Autobind
+  dragStartHandler(event: DragEvent): void {
+    console.log(event);
+    this.element.classList.add('dragging');
+    // on the event, there is a dataTransfer property which has a method that takes two args: the type of data allowed and we are passing in the projects id, so that we can capture this when the element is dropped in to the target element.
+    event.dataTransfer.setData('text/plain', this.project.id);
+    event.dataTransfer.effectAllowed = 'move';
+  }
+
+  @Autobind
+  dragEndHandler(event: DragEvent): void {
+    console.log('DragEnd');
+  }
+
   public configure(): void {
     this.element.classList.add('project__list__item');
     this.element.classList.add(`project__list__item--${this.type}`);
+
+    // attach an event listener on to the element
+    this.element.addEventListener('dragstart', this.dragStartHandler);
+    this.element.addEventListener('dragend', this.dragEndHandler);
   }
 
   public renderContent(): void {
@@ -352,7 +400,10 @@ class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> {
   }
 }
 
-class ProjectList extends Component<HTMLElement, HTMLUListElement> {
+class ProjectList
+  extends Component<HTMLElement, HTMLUListElement>
+  implements DragTarget
+{
   assignedProjects: Project[];
 
   constructor(private type: 'active' | 'finished') {
@@ -381,8 +432,48 @@ class ProjectList extends Component<HTMLElement, HTMLUListElement> {
     this.renderContent();
   }
 
+  // implements DragTarget interface
+  @Autobind
+  dragOverHandler(event: DragEvent): void {
+    if (event.dataTransfer && event.dataTransfer.types[0] === 'text/plain') {
+      // we need to prevent default because by default the browser does not allow dropping of an element
+      event.preventDefault();
+      const listEl = this.element.querySelector(
+        `.project__list--${this.type}`
+      )!;
+      listEl.classList.add('dragging');
+    }
+  }
+
+  @Autobind
+  dropHandler(event: DragEvent): void {
+    console.log(event.dataTransfer!.getData('text/plain'));
+
+    const prjId = event.dataTransfer!.getData('text/plain');
+
+    projectState.moveProject(
+      prjId,
+      this.type === 'active' ? ProjectStatus.Active : ProjectStatus.Finished
+    );
+
+    // to remove the background color on both active and finished lists once the item has moved and dropped in the target
+    document.querySelectorAll('.project__list').forEach((list) => {
+      list.classList.remove('dragging');
+    });
+  }
+
+  @Autobind
+  dragLeaveHandler(event: DragEvent): void {
+    const listEl = this.element.querySelector(`.project__list--${this.type}`)!;
+    listEl.classList.remove('dragging');
+  }
+
   // to satisfy the base class
-  public configure() {}
+  public configure() {
+    this.element.addEventListener('dragover', this.dragOverHandler);
+    this.element.addEventListener('dragleave', this.dragLeaveHandler);
+    this.element.addEventListener('drop', this.dropHandler);
+  }
 
   public renderContent() {
     // to apply specific styles
@@ -417,6 +508,8 @@ class ProjectList extends Component<HTMLElement, HTMLUListElement> {
       // creating a list item element and rendering it to the host element, we can call it here and pass in the constructors args
 
       // we need the host element which will be the unordered list element within section__projects, which is the element on project__list template.
+
+      console.log(this.element);
 
       const hostElementId = this.element.querySelector('ul')!.id;
       console.log(hostElementId);
