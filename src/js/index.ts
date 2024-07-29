@@ -485,6 +485,8 @@ class ProjectList
     this.element.querySelector('ul').className = listClasses;
     this.element.querySelector('h2').textContent =
       `${this.type.toUpperCase()} PROJECTS`;
+    this.element.querySelector('h3').textContent =
+      `DRAG & DROP YOUR PROJECT TO ${this.type === 'active' ? 'FINISHED' : 'ACTIVE'} LIST`;
   }
 
   private renderProject() {
