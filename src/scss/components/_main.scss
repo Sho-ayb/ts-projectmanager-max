@@ -21,11 +21,17 @@ body {
         height: 4rem;
         text-align: center;
         display: flex;
+        flex-direction: column;
         justify-content: center;
         align-items: center;
 
         > h2 {
           font-size: variables.$font-size-xl;
+          color: variables.$color-text-light-2;
+        }
+
+        > h3 {
+          font-size: variables.$font-size-lg;
           color: variables.$color-text-light-2;
         }
       }
