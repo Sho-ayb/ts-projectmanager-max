@@ -10,12 +10,13 @@ const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = merge(common, {
   mode: 'production',
-  devtool: 'nosources-source-map',
+  devtool: false,
   output: {
     path: path.resolve(__dirname, 'build'),
     publicPath: './',
     filename: 'bundle.[contenthash].js',
     assetModuleFilename: 'assets/img/[name].[hash][ext]',
+    clean: true, // Cleans the output directory before emit
   },
   optimization: {
     minimizer: [
@@ -23,31 +24,36 @@ module.exports = merge(common, {
       new TerserPlugin({
         extractComments: true,
         terserOptions: {
-          output: {
-            comments: 'all',
+          format: {
+            comments: 'false',
+          },
+          compress: {
+            drop_console: true,
           },
         },
       }),
     ],
   },
   plugins: [
+    new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
       template: './src/template.html',
+      minify: {
+        removeAttributeQuotes: true,
+        collapseWhitespace: true,
+        removeComments: true,
+      },
     }),
-    new MiniCssExtractPlugin(),
-    new CleanWebpackPlugin(),
+    new MiniCssExtractPlugin({
+      filename: '[name].[contenthash].css',
+    }),
   ],
   module: {
     rules: [
       {
-        test: /\.(js|ts)$/,
+        test: /\.ts$/,
         exclude: /node_modules/,
-        use: {
-          loader: 'babel-loader',
-          options: {
-            presets: ['@babel/preset-env', '@babel/preset-typescript'],
-          },
-        },
+        use: 'babel-loader',
       },
       {
         test: /\.scss$/,

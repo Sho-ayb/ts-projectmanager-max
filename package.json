@@ -5,6 +5,7 @@
   "main": "index.ts",
   "scripts": {
     "build:dev": "webpack serve --config webpack.dev.js --open-app-name chrome",
+    "build:ts": "tsc --watch",
     "build:prod": "webpack --config webpack.prod.js"
   },
   "repository": {
@@ -26,7 +27,12 @@
   "homepage": "https://github.com/Sho-ayb/ts-projectmanager-max#readme",
   "devDependencies": {
     "@babel/core": "^7.24.3",
+    "@babel/plugin-proposal-decorators": "^7.24.7",
+    "@babel/plugin-transform-class-properties": "^7.24.7",
+    "@babel/plugin-transform-private-methods": "^7.24.7",
+    "@babel/plugin-transform-private-property-in-object": "^7.24.7",
     "@babel/preset-env": "^7.24.3",
+    "@babel/preset-typescript": "^7.24.7",
     "@beyonk/google-fonts-webpack-plugin": "^1.7.0",
     "@types/node": "^20.14.10",
     "@types/webpack": "^5.28.5",

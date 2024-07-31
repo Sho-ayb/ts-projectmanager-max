@@ -29,6 +29,6 @@
     "@typescript-eslint/no-unused-vars": [
       "error",
       { "argsIgnorePattern": "^_" }
-    ] // any variable beginning with underscore will be ignored
+    ]
   }
 }
