@@ -1,13 +1,11 @@
-'use-strict';
-
 // importing the style file
 import '../scss/style.scss';
 
 // Autobind decorator
 
 function Autobind(
-  _: any,
-  _2: string,
+  target: any,
+  methodName: string,
   descriptor: PropertyDescriptor
 ): PropertyDescriptor {
   // need to get the original method from the descriptor
@@ -22,7 +20,7 @@ function Autobind(
 
     // a getter method
 
-    get() {
+    get(this: any) {
       // lets now create a variable that is bound to the "this ref" of the original method
 
       const boundFn = originalMethod.bind(this);
@@ -35,11 +33,22 @@ function Autobind(
   return adjDescriptor;
 }
 
+// a new interface object to validate user inputs
+
+interface Validatable {
+  value: string | number;
+  required: boolean;
+  minLength?: number;
+  maxLength?: number;
+  min?: number;
+  max?: number;
+}
+
 // a function to handle valid inputs
 
 function validInput(validInput: Validatable): boolean {
   // keep a variable here to determine to return truthy || falsy
-  let isValid = true;
+  let isValid: boolean = true;
 
   // checking if anything is entered as an input
   if (validInput.required) {
@@ -68,17 +77,6 @@ function validInput(validInput: Validatable): boolean {
 
   // in the end we ruturn a boolean
   return isValid;
-}
-
-// a new interface object to validate user inputs
-
-interface Validatable {
-  value: string | number;
-  required: boolean;
-  minLength?: number;
-  maxLength?: number;
-  min?: number;
-  max?: number;
 }
 
 // a new interface object that includes methods that certain class's need to implement
@@ -238,9 +236,9 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
 
 // ProjectInput class
 class ProjectInput extends Component<HTMLDivElement, HTMLFormElement> {
-  titleInputEl: HTMLInputElement;
-  descriptionEl: HTMLInputElement;
-  peopleEl: HTMLInputElement;
+  titleInputEl!: HTMLInputElement;
+  descriptionEl!: HTMLInputElement;
+  peopleEl!: HTMLInputElement;
 
   constructor() {
     // super ensures that this class gets the constructor of its parent Component
@@ -253,7 +251,7 @@ class ProjectInput extends Component<HTMLDivElement, HTMLFormElement> {
   }
 
   // All public class's should be before any private class's.
-  public configure() {
+  public configure(): void {
     // we need to extract the inputs from the form fields and
     // assign it to the class properties above
 
@@ -280,7 +278,7 @@ class ProjectInput extends Component<HTMLDivElement, HTMLFormElement> {
   }
 
   @Autobind
-  private submitHandler(event: Event) {
+  private submitHandler(event: Event): void {
     event.preventDefault();
     // gather the user inputs
     const userInput = this.gatherUserInputs();
@@ -375,8 +373,8 @@ class ProjectItem
     console.log(event);
     this.element.classList.add('dragging');
     // on the event, there is a dataTransfer property which has a method that takes two args: the type of data allowed and we are passing in the projects id, so that we can capture this when the element is dropped in to the target element.
-    event.dataTransfer.setData('text/plain', this.project.id);
-    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer!.setData('text/plain', this.project.id);
+    event.dataTransfer!.effectAllowed = 'move';
   }
 
   @Autobind
@@ -412,7 +410,7 @@ class ProjectList
 
     // so now before the instance methods are executed, we want to invoke the addListener method and return a function that reassigns the projects array to an array prop here
 
-    projectState.addListener((projects: Project[]) => {
+    projectState.addListener((projects: Project[]): void => {
       // filtering the active and finished projects
       const resolvedProjects = projects.filter((project) => {
         if (this.type === 'active') {
@@ -475,21 +473,21 @@ class ProjectList
     this.element.addEventListener('drop', this.dropHandler);
   }
 
-  public renderContent() {
+  public renderContent(): void {
     // to apply specific styles
     const headerClass = `project__header--${this.type}`;
     const listClasses = `project__list project__list--${this.type}`;
     const listId = `${this.type}__project__list`;
-    this.element.querySelector('header').className = headerClass;
-    this.element.querySelector('ul').id = listId;
-    this.element.querySelector('ul').className = listClasses;
-    this.element.querySelector('h2').textContent =
+    this.element.querySelector('header')!.className = headerClass;
+    this.element.querySelector('ul')!.id = listId;
+    this.element.querySelector('ul')!.className = listClasses;
+    this.element.querySelector('h2')!.textContent =
       `${this.type.toUpperCase()} PROJECTS`;
-    this.element.querySelector('h3').textContent =
+    this.element.querySelector('h3')!.textContent =
       `DRAG & DROP YOUR PROJECT TO ${this.type === 'active' ? 'FINISHED' : 'ACTIVE'} LIST`;
   }
 
-  private renderProject() {
+  private renderProject(): void {
     // to fix duplication: everytime this method is executed
     // we set the innerHTML of the list element to empty string
 
@@ -529,7 +527,12 @@ const init = () => {
     const prjActiveList = new ProjectList('active');
     const prjFinishedList = new ProjectList('finished');
   } catch (error) {
-    console.log('Error: ' + error.message);
+    // we need a type gaurd here to check the type of error we get
+    if (error instanceof Error) {
+      console.log('Error: ' + error.message);
+    } else {
+      console.log('An unknown error occurred');
+    }
   }
 };
 
