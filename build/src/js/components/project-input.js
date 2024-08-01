@@ -34,7 +34,6 @@ export class ProjectInput extends Component {
                 this.submitHandler(event);
             }
             catch (error) {
-                console.log('Error is caught in the event handler');
                 if (error instanceof Error) {
                     showModal(`${error.message}`);
                 }
@@ -107,6 +106,7 @@ export class ProjectInput extends Component {
       ${peopleError ? `Number of people: ${peopleError}` : ''}
     
     `;
+        // Because the validInput returns a null falsy value as a truthy in the validation.ts file ternary operator, we can create a simple check here without negating the values.
         if (titleError || descError || peopleError) {
             throw new Error(errorMarkup);
         }
