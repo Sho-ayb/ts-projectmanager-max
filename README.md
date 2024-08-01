@@ -7,6 +7,7 @@
 [Usage](#usage)<br>
 [Testing the Application](#testing-the-application)<br>
 [Snapshots](#snapshots)<br>
+[Deployed Live](#deployed-live)
 [Github](#github)<br>
 [LinkedIn](#linkedin)<br>
 [Questions](#questions)<br>
@@ -33,6 +34,10 @@ Test the validation for this project by leaving any of the inputs empty or enter
 ## Snapshots
 
 ![Demo Project Manager Application](./demo-project-manager-snap-1.PNG)
+
+## Deployed Live
+
+[Demo Project Manager App In Typescript](https://sho-ayb.github.io/ts-projectmanager-max/)
 
 ## Github
 
