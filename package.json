@@ -5,7 +5,7 @@
   "main": "index.ts",
   "scripts": {
     "build:dev": "webpack serve --config webpack.dev.js --open-app-name chrome",
-    "build:ts": "tsc --watch",
+    "build:ts": "tsc --noEmit --watch",
     "build:prod": "webpack --config webpack.prod.js"
   },
   "repository": {
