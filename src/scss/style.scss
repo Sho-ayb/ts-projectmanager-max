@@ -12,7 +12,10 @@
 @use "../scss/components/header";
 @use "../scss/components/main";
 @use "../scss/components/footer";
+@use "../scss/components/modal";
+@use "../scss/components/overlay";
 
 /* Utilities */
 
 @use "../scss/Utilities/spacing";
+@use "../scss/Utilities/hidden";

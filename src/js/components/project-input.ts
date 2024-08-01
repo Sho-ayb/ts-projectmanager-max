@@ -5,6 +5,7 @@ import { Component } from './abstract-component';
 import { projectState } from '../state/project-state';
 import { Validatable } from '../models/interfaces';
 import { validInput } from '../util/validation';
+import { showModal } from '../util/show-modal';
 
 // ProjectInput class
 export class ProjectInput extends Component<HTMLDivElement, HTMLFormElement> {
@@ -35,7 +36,17 @@ export class ProjectInput extends Component<HTMLDivElement, HTMLFormElement> {
     ) as HTMLInputElement;
     this.peopleEl = this.element.querySelector('#people') as HTMLInputElement;
 
-    this.element.addEventListener('submit', this.submitHandler);
+    this.element.addEventListener('submit', (event: Event) => {
+      try {
+        this.submitHandler(event);
+      } catch (error) {
+        console.log('Error is caught in the event handler');
+
+        if (error instanceof Error) {
+          showModal(`${error.message}`);
+        }
+      }
+    });
   }
 
   // we should call renderContent here to satisfy the base class
@@ -52,21 +63,31 @@ export class ProjectInput extends Component<HTMLDivElement, HTMLFormElement> {
   @Autobind
   private submitHandler(event: Event): void {
     event.preventDefault();
-    // gather the user inputs
-    const userInput = this.gatherUserInputs();
-    // what is actually returned is a tuple but a tuple is just an array, so we can check if what is returned is indeed an array
-    if (Array.isArray(userInput)) {
-      // we can destructure
-      const [title, desc, people] = userInput;
 
-      console.log(title, desc, people);
+    // need a try catch here to catch an error and pass it to a higher level so that init function can catch it.
 
-      // invoke the public method to add a project
-      projectState.addProject(title, desc, people);
+    try {
+      // gather the user inputs
+      const userInput = this.gatherUserInputs();
+      // what is actually returned is a tuple but a tuple is just an array, so we can check if what is returned is indeed an array
+      if (Array.isArray(userInput)) {
+        // we can destructure
+        const [title, desc, people] = userInput;
+
+        console.log(title, desc, people);
+
+        // invoke the public method to add a project
+        projectState.addProject(title, desc, people);
+      }
+
+      // once submitted clear all the inputs
+      this.clearInputs();
+    } catch (error) {
+      if (error instanceof Error) {
+        // throwing error to the event listener
+        throw error;
+      }
     }
-
-    // once submitted clear all the inputs
-    this.clearInputs();
   }
 
   private gatherUserInputs(): [string, string, number] | void {
@@ -96,14 +117,21 @@ export class ProjectInput extends Component<HTMLDivElement, HTMLFormElement> {
       max: 5,
     };
 
-    // we can check if the inputs a valid - inverting truthies, so if any are falsy, it will execute the first if statement
+    const titleError = validInput(titleValidatable);
+    const descError = validInput(descriptionValidatable);
+    const peopleError = validInput(peopleValidatable);
 
-    if (
-      !validInput(titleValidatable) &&
-      !validInput(descriptionValidatable) &&
-      !validInput(peopleValidatable)
-    ) {
-      throw new Error('Please enter a valid input');
+    const errorMarkup = `
+      
+      Please enter a valid input:
+      ${titleError ? `Title: ${titleError}` : ''} 
+      ${descError ? `Description: ${descError}` : ''}
+      ${peopleError ? `Number of people: ${peopleError}` : ''}
+    
+    `;
+
+    if (titleError || descError || peopleError) {
+      throw new Error(errorMarkup);
     } else {
       return [titleInput, descInput, +peopleInput];
     }
