@@ -32,7 +32,7 @@ Test the validation for this project by leaving any of the inputs empty or enter
 
 ## Snapshots
 
-![Demo Project Manager Application](./demo-project-manager-snap-1.PNG);
+![Demo Project Manager Application](./demo-project-manager-snap-1.PNG)
 
 ## Github
 
